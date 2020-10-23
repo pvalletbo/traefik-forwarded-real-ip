@@ -1,0 +1,18 @@
+# The name of your plugin as displayed in the Traefik Pilot web UI.
+displayName: X-Real-IP Overwrite
+
+# For now, `middleware` is the only type available.
+type: middleware
+
+# The import path of your plugin.
+import: github.com/pvalletbo/traefik-forwarded-real-ip
+
+# A brief description of what your plugin is doing.
+summary: When traefik is deployed behind a load balancer, it should get the real IP from the x-forwarded-for header. 
+
+# Configuration data for your plugin.
+# This is mandatory,
+# and Traefik Pilot will try to execute the plugin with the data you provide as part of its startup validity tests.
+testData:
+    blockedranges:
+    - "1.1.1.1/32"
