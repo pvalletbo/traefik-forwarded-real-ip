@@ -1,4 +1,4 @@
-package realip
+package traefik_forwarded_real_ip
 
 import (
 	"context"

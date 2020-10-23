@@ -14,5 +14,5 @@ summary: When traefik is deployed behind a load balancer, it should get the real
 # This is mandatory,
 # and Traefik Pilot will try to execute the plugin with the data you provide as part of its startup validity tests.
 testData:
-    blockedranges:
-    - "1.1.1.1/32"
+    excludednets:
+    - "1.1.1.1/24"
