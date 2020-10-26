@@ -33,22 +33,26 @@ type RealIPOverWriter struct {
 
 // New created a new Demo plugin.
 func New(ctx context.Context, next http.Handler, config *Config, name string) (http.Handler, error) {
-	var ipOverwriter *RealIPOverWriter
+	ipOverWriter := &RealIPOverWriter{
+		next: next,
+		name: name,
+	}
+
 	for _, v := range config.ExcludedNets {
 		_, excludedNet, err := net.ParseCIDR(v)
 		if err != nil {
 			return nil, err
 		}
-		ipOverwriter.ExcludedNets = append(ipOverwriter.ExcludedNets, excludedNet)
-	}
-	ipOverwriter.next = next
-	ipOverwriter.name = name
 
-	return ipOverwriter, nil
+		ipOverWriter.ExcludedNets = append(ipOverWriter.ExcludedNets, excludedNet)
+	}
+
+	return ipOverWriter, nil
 }
 
 func (r *RealIPOverWriter) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	forwardedIPs := strings.Split(req.Header.Get(xForwardedFor), ",")
+
 	// TODO - Implement a max for the iterations
 	var realIP string
 	for i := len(forwardedIPs) - 1; i >= 0; i-- {
@@ -59,6 +63,7 @@ func (r *RealIPOverWriter) ServeHTTP(rw http.ResponseWriter, req *http.Request) 
 			break
 		}
 	}
+
 	req.Header.Set(xRealIP, realIP)
 
 	r.next.ServeHTTP(rw, req)
@@ -70,10 +75,12 @@ func (r *RealIPOverWriter) excludedIP(s string) bool {
 		// log the error and fallback to the default value (check if true is ok)
 		return true
 	}
+
 	for _, network := range r.ExcludedNets {
 		if network.Contains(ip) {
 			return true
 		}
 	}
+
 	return false
 }
